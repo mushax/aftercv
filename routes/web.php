@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Auth\AuthenticationException;
 use App\Http\Controllers\HomeController;
-
+use Illuminate\Support\Facades\Log;
 
 
 Route::get('/', function () {
