@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Auth\AuthenticationException;
+use App\Http\Controllers\HomeController;
+
 
 
 Route::get('/', function () {
@@ -24,10 +26,14 @@ Route::group([
     }
 ], function () {
 
-    Route::get('/', function () {
-        return view('welcome');
-    })->name('welcome');
+    Route::get('/', [HomeController::class, 'index'])->name('welcome');
+    Route::get('/privacy-policy', function () {
+        return view('legal.privacy-policy');
+    })->name('privacy.policy');
 
+    Route::get('/terms-of-service', function () {
+        return view('legal.terms-of-service');
+    })->name('terms.service');
     // كل الروابط داخل هذه المجموعة ستستفيد من تحديد اللغة تلقائيا
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', function () {
@@ -39,7 +45,6 @@ Route::group([
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
-    require __DIR__.'/auth.php';
-
+    require __DIR__ . '/auth.php';
 });
 // ==========================================================
