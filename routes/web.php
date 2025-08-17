@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Auth\AuthenticationException;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CvController;
 use Illuminate\Support\Facades\Log;
 
 
@@ -43,6 +44,9 @@ Route::group([
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/cv/create', [CvController::class, 'create'])->name('cv.create');
+        Route::post('/cv/create/personal-info', [CvController::class, 'storePersonalInfo'])->name('cv.storePersonalInfo');
+        Route::post('/cv/create/work-experience', [CvController::class, 'storeWorkExperience'])->name('cv.storeWorkExperience');
     });
 
     require __DIR__ . '/auth.php';

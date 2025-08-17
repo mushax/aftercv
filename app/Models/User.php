@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\VerifyEmailLocalized;
+use App\Models\Profile;
+use App\Models\Cv;
 
 class User extends Authenticatable
 {
@@ -47,7 +49,7 @@ class User extends Authenticatable
         ];
     }
 
-        /**
+    /**
      * Send the email verification notification.
      *
      * @return void
@@ -55,5 +57,16 @@ class User extends Authenticatable
     public function sendEmailVerificationNotification()
     {
         $this->notify(new VerifyEmailLocalized);
+    }
+    /**
+     * Get the profile associated with the user.
+     */
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
+        public function cvs()
+    {
+        return $this->hasMany(Cv::class);
     }
 }
