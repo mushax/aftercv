@@ -22,4 +22,16 @@ class Cv extends Model
     {
         return $this->hasMany(WorkExperience::class);
     }
+        public function education()
+    {
+        return $this->hasMany(Education::class);
+    }
+    public function skills()
+{
+    return $this->hasMany(Skill::class);
+}
+public function languages()
+{
+    return $this->hasMany(Language::class);
+}
 }

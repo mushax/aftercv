@@ -6,35 +6,40 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StorePersonalInfoRequest;
 use App\Models\WorkExperience;
 use App\Http\Requests\StoreWorkExperienceRequest;
+use App\Http\Requests\StoreEducationRequest; 
 use App\Models\Cv;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Country;
+
 
 
 class CvController extends Controller
 {
     public function create()
     {
-        // Get the authenticated user
         /** @var \App\Models\User $user */
-
         $user = Auth::user();
-
-        // Find the user's first CV, or create a new one if it doesn't exist.
-        // This is a temporary measure until we build multi-CV support.
-        $cv = $user->cvs()->firstOrCreate(
+        $cv = $user->cvs()->with(['workExperiences', 'education', 'skills', 'languages'])->firstOrCreate(
             ['user_id' => $user->id],
-            [
-                'title' => 'Default CV',
-                'template' => 'default',
-                'locale' => app()->getLocale(),
-            ]
+            ['title' => 'Default CV', 'template' => 'default', 'locale' => app()->getLocale()]
         );
-
-        // Load the work experiences associated with this CV
-        $workExperiences = $cv->workExperiences()->orderBy('start_date', 'desc')->get();
+        
+        $countries = Country::all()->map(function ($country) {
+            return [
+                'id' => $country->id,
+                'name' => $country->name[app()->getLocale()] ?? $country->name['en'],
+                'flag_emoji' => $country->flag_emoji,
+                'country_code' => $country->country_code, // <<< THE FIX IS HERE
+            ];
+        });
 
         return view('cv.create', [
-            'workExperiences' => $workExperiences,
+            'cv' => $cv,
+            'workExperiences' => $cv->workExperiences,
+            'education' => $cv->education,
+            'skills' => $cv->skills,
+            'languages' => $cv->languages,
+            'countries' => $countries,
         ]);
     }
     public function storePersonalInfo(StorePersonalInfoRequest $request)
@@ -64,4 +69,45 @@ class CvController extends Controller
         return to_route('cv.create', ['locale' => app()->getLocale()])
             ->with('status_work_experience', 'Work experience added successfully!');
     }
+    public function storeEducation(StoreEducationRequest $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        $cv = $user->cvs()->first();
+
+        $cv->education()->create($request->validated());
+        
+        return to_route('cv.create', ['locale' => app()->getLocale()])
+            ->with('status_education', 'Education added successfully!');
+    }
+    public function storeSkill(Request $request)
+{
+    $request->validate(['name' => 'required|string|max:255']);
+
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+    $cv = $user->cvs()->first();
+
+    $cv->skills()->create($request->only('name'));
+
+    return to_route('cv.create', ['locale' => app()->getLocale()])
+        ->with('status_skill', 'Skill added successfully!');
+}
+public function storeLanguage(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'level' => 'required|string|in:Native,Fluent,Intermediate,Beginner',
+    ]);
+
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+    $cv = $user->cvs()->first();
+
+    $cv->languages()->create($request->only('name', 'level'));
+
+    return to_route('cv.create', ['locale' => app()->getLocale()])
+        ->with('status_language', 'Language added successfully!');
+}
 }

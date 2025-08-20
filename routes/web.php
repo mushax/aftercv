@@ -8,6 +8,8 @@ use Illuminate\Auth\AuthenticationException;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CvController;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Api\LocationController;
+
 
 
 Route::get('/', function () {
@@ -47,6 +49,13 @@ Route::group([
         Route::get('/cv/create', [CvController::class, 'create'])->name('cv.create');
         Route::post('/cv/create/personal-info', [CvController::class, 'storePersonalInfo'])->name('cv.storePersonalInfo');
         Route::post('/cv/create/work-experience', [CvController::class, 'storeWorkExperience'])->name('cv.storeWorkExperience');
+        Route::post('/cv/create/education', [CvController::class, 'storeEducation'])->name('cv.storeEducation');
+        Route::post('/cv/create/skill', [CvController::class, 'storeSkill'])->name('cv.storeSkill');
+        Route::post('/cv/create/language', [CvController::class, 'storeLanguage'])->name('cv.storeLanguage');
+Route::get('/countries/{country}/cities', [LocationController::class, 'cities'])->name('api.countries.cities');
+
+
+
     });
 
     require __DIR__ . '/auth.php';

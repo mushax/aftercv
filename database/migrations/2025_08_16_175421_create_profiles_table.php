@@ -6,26 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-         Schema::create('profiles', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->string('job_title')->nullable();
-        $table->string('phone_number')->nullable();
-        $table->string('address')->nullable();
-        $table->string('profile_image_path')->nullable();
-        $table->text('summary')->nullable();
-        $table->timestamps();
-    });
+        Schema::create('profiles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->json('first_name')->nullable();
+            $table->json('father_name')->nullable();
+            $table->json('last_name')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
+            $table->foreignId('nationality_country_id')->nullable()->constrained('countries');
+            $table->foreignId('residence_country_id')->nullable()->constrained('countries');
+            $table->json('phone_numbers')->nullable();
+            $table->json('emails')->nullable();
+            $table->timestamps();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('profiles');
