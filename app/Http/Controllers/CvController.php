@@ -19,7 +19,7 @@ class CvController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $cv = $user->cvs()->with(['workExperiences', 'education', 'skills', 'languages'])->firstOrCreate(
+        $cv = $user->cvs()->with(['workExperiences', 'education', 'skills', 'languages', 'projects', 'certificates','references'])->firstOrCreate(
             ['user_id' => $user->id],
             ['title' => 'Default CV', 'template' => 'default', 'locale' => app()->getLocale()]
         );
@@ -39,6 +39,9 @@ class CvController extends Controller
             'education' => $cv->education,
             'skills' => $cv->skills,
             'languages' => $cv->languages,
+            'projects' => $cv->projects,
+            'certificates' => $cv->certificates,
+            'references' => $cv->references,
             'countries' => $countries,
         ]);
     }
@@ -109,5 +112,59 @@ public function storeLanguage(Request $request)
 
     return to_route('cv.create', ['locale' => app()->getLocale()])
         ->with('status_language', 'Language added successfully!');
+
+}
+public function storeProject(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'link' => 'nullable|url|max:255',
+        'description' => 'nullable|string',
+    ]);
+
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+    $cv = $user->cvs()->first();
+
+    $cv->projects()->create($request->only('name', 'link', 'description'));
+
+    return to_route('cv.create', ['locale' => app()->getLocale()])
+        ->with('status_project', 'Project added successfully!');
+}
+public function storeCertificate(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'issuing_organization' => 'required|string|max:255',
+        'issue_date' => 'required|date_format:Y-m',
+    ]);
+
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+    $cv = $user->cvs()->first();
+
+    $cv->certificates()->create($request->only('name', 'issuing_organization', 'issue_date'));
+
+    return to_route('cv.create', ['locale' => app()->getLocale()])
+        ->with('status_certificate', 'Certificate added successfully!');
+}
+public function storeReference(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'job_title' => 'nullable|string|max:255',
+        'company' => 'nullable|string|max:255',
+        'phone' => 'nullable|string|max:255',
+        'email' => 'nullable|email|max:255',
+    ]);
+
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+    $cv = $user->cvs()->first();
+
+    $cv->references()->create($request->all());
+
+    return to_route('cv.create', ['locale' => app()->getLocale()])
+        ->with('status_reference', 'Reference added successfully!');
 }
 }

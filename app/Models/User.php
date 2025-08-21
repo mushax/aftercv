@@ -7,18 +7,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\VerifyEmailLocalized;
-use App\Models\Profile;
-use App\Models\Cv;
 
-class User extends Authenticatable
+class User extends Authenticatable // implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
@@ -29,7 +26,7 @@ class User extends Authenticatable
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -50,6 +47,18 @@ class User extends Authenticatable
     }
 
     /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::created(function ($user) {
+            $user->profile()->create([]);
+        });
+    }
+
+    /**
      * Send the email verification notification.
      *
      * @return void
@@ -58,6 +67,7 @@ class User extends Authenticatable
     {
         $this->notify(new VerifyEmailLocalized);
     }
+
     /**
      * Get the profile associated with the user.
      */
@@ -65,7 +75,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(Profile::class);
     }
-        public function cvs()
+
+    /**
+     * Get the cvs for the user.
+     */
+    public function cvs()
     {
         return $this->hasMany(Cv::class);
     }

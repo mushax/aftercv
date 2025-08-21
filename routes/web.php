@@ -52,8 +52,11 @@ Route::group([
         Route::post('/cv/create/education', [CvController::class, 'storeEducation'])->name('cv.storeEducation');
         Route::post('/cv/create/skill', [CvController::class, 'storeSkill'])->name('cv.storeSkill');
         Route::post('/cv/create/language', [CvController::class, 'storeLanguage'])->name('cv.storeLanguage');
-Route::get('/countries/{country}/cities', [LocationController::class, 'cities'])->name('api.countries.cities');
-
+        Route::get('/countries/{country}/cities', [LocationController::class, 'cities'])->name('api.countries.cities');
+        Route::post('/cv/create/project', [CvController::class, 'storeProject'])->name('cv.storeProject');
+        Route::post('/cv/create/certificate', [CvController::class, 'storeCertificate'])->name('cv.storeCertificate');
+        Route::post('/cv/create/reference', [CvController::class, 'storeReference'])->name('cv.storeReference');
+        Route::patch('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.updatePhoto');
 
 
     });

@@ -1,13 +1,9 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
+return new class extends Migration {
+    public function up(): void {
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
@@ -20,12 +16,9 @@ return new class extends Migration
             $table->foreignId('residence_country_id')->nullable()->constrained('countries');
             $table->json('phone_numbers')->nullable();
             $table->json('emails')->nullable();
+            $table->string('profile_image_path')->nullable(); // <<< THE FIX IS HERE
             $table->timestamps();
         });
     }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('profiles');
-    }
+    public function down(): void { Schema::dropIfExists('profiles'); }
 };

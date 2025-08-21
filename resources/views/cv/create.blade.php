@@ -19,6 +19,9 @@
         education: {{ $education->toJson() }},
         skills: {{ $skills->toJson() }},
         languages: {{ $languages->toJson() }},
+        projects: {{ $projects->toJson() }},
+        certificates: {{ $certificates->toJson() }},
+        references: {{ $references->toJson() }},
         openStep: 'personal',
         cities: [],
         loadCities(countryId) {
@@ -37,6 +40,7 @@
                     <div class="lg:col-span-1">
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6 md:p-8 space-y-6">
+                                
                                 <!-- Accordion Item 1: Personal Information -->
                                 <div class="border rounded-lg">
                                     <div @click="openStep = (openStep === 'personal' ? '' : 'personal')" class="p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-t-lg">
@@ -44,9 +48,29 @@
                                         <svg class="w-6 h-6 transform transition-transform" :class="{'rotate-180': openStep === 'personal'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
                                     <div x-show="openStep === 'personal'" x-transition class="p-6 border-t">
-                                        {{-- NOTE: The form action and logic will be fully built in a future step --}}
                                         <div class="space-y-4">
-                                            <h4 class="font-bold text-sm text-gray-600">Full Name</h4>
+                                            <h4 class="font-bold text-sm text-gray-600">Profile Picture</h4>
+                                            <form method="POST" action="{{ route('profile.updatePhoto', app()->getLocale()) }}" enctype="multipart/form-data">
+                                                @csrf
+                                                @method('PATCH')
+                                                <div class="flex items-center space-x-4">
+                                                    <div class="shrink-0">
+                                                        @if (auth()->user()->profile && auth()->user()->profile->profile_image_path)
+                                                            <img class="h-16 w-16 object-cover rounded-full" src="{{ asset('storage/' . auth()->user()->profile->profile_image_path) }}" alt="Current profile photo" />
+                                                        @else
+                                                            <div class="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center">
+                                                                <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex-grow">
+                                                        <input type="file" name="profile_photo" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
+                                                    </div>
+                                                    <x-primary-button>{{ __('Upload') }}</x-primary-button>
+                                                </div>
+                                            </form>
+
+                                            <h4 class="font-bold text-sm text-gray-600 pt-4 border-t">Full Name</h4>
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <x-text-input placeholder="First Name (EN)" name="first_name_en" x-model="personal.first_name.en" />
                                                 <x-text-input placeholder="Last Name (EN)" name="last_name_en" x-model="personal.last_name.en" />
@@ -257,6 +281,99 @@
                                         </form>
                                     </div>
                                 </div>
+
+                                <!-- Accordion Item 6: Projects -->
+                                <div class="border rounded-lg">
+                                    <div @click="openStep = (openStep === 'projects' ? '' : 'projects')" class="p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-t-lg">
+                                        <h3 class="font-heading text-lg font-bold text-primary">{{ __('Projects') }}</h3>
+                                        <svg class="w-6 h-6 transform transition-transform" :class="{'rotate-180': openStep === 'projects'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                    <div x-show="openStep === 'projects'" x-transition class="p-6 border-t">
+                                        <div class="space-y-4 mb-6">
+                                            @forelse ($projects as $project)
+                                                <div class="p-4 border rounded-md flex justify-between items-center bg-gray-50">
+                                                    <div><p class="font-bold text-gray-800">{{ $project->name }}</p></div>
+                                                </div>
+                                            @empty
+                                                <p class="text-gray-500 text-center py-4">{{ __("You haven't added any projects yet.") }}</p>
+                                            @endforelse
+                                        </div>
+                                        <h4 class="font-bold text-lg mb-4 pt-4 border-t">{{ __('Add New Project') }}</h4>
+                                        <form method="POST" action="{{ route('cv.storeProject', app()->getLocale()) }}">
+                                            @csrf
+                                            <div class="space-y-4">
+                                                <div><x-input-label for="project_name" :value="__('Project Name')" /><x-text-input id="project_name" class="block mt-1 w-full" type="text" name="name" required /></div>
+                                                <div><x-input-label for="project_link" :value="__('Project Link (Optional)')" /><x-text-input id="project_link" class="block mt-1 w-full" type="url" name="link" /></div>
+                                                <div><x-input-label for="project_description" :value="__('Description')" /><textarea id="project_description" name="description" class="border-gray-300 rounded-md shadow-sm block mt-1 w-full h-24"></textarea></div>
+                                                <div class="flex justify-end"><x-primary-button>{{ __('Add Project') }}</x-primary-button></div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                
+                                <!-- Accordion Item 7: Certificates -->
+                                <div class="border rounded-lg">
+                                    <div @click="openStep = (openStep === 'certificates' ? '' : 'certificates')" class="p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-t-lg">
+                                        <h3 class="font-heading text-lg font-bold text-primary">{{ __('Certificates') }}</h3>
+                                        <svg class="w-6 h-6 transform transition-transform" :class="{'rotate-180': openStep === 'certificates'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                    <div x-show="openStep === 'certificates'" x-transition class="p-6 border-t">
+                                        <div class="space-y-4 mb-6">
+                                            @forelse ($certificates as $certificate)
+                                                <div class="p-4 border rounded-md flex justify-between items-center bg-gray-50">
+                                                    <div><p class="font-bold text-gray-800">{{ $certificate->name }}</p></div>
+                                                </div>
+                                            @empty
+                                                <p class="text-gray-500 text-center py-4">{{ __("You haven't added any certificates yet.") }}</p>
+                                            @endforelse
+                                        </div>
+                                        <h4 class="font-bold text-lg mb-4 pt-4 border-t">{{ __('Add New Certificate') }}</h4>
+                                        <form method="POST" action="{{ route('cv.storeCertificate', app()->getLocale()) }}">
+                                            @csrf
+                                            <div class="space-y-4">
+                                                <div><x-input-label for="cert_name" :value="__('Certificate Name')" /><x-text-input id="cert_name" class="block mt-1 w-full" type="text" name="name" required /></div>
+                                                <div><x-input-label for="cert_org" :value="__('Issuing Organization')" /><x-text-input id="cert_org" class="block mt-1 w-full" type="text" name="issuing_organization" required /></div>
+                                                <div>
+                                                    <x-input-label for="issue_date_cert" value="Issue Date" />
+                                                    <input type="month" id="issue_date_cert" name="issue_date" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">
+                                                </div>
+                                                <div class="flex justify-end"><x-primary-button>{{ __('Add Certificate') }}</x-primary-button></div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Accordion Item 8: References -->
+                                <div class="border rounded-lg">
+                                    <div @click="openStep = (openStep === 'references' ? '' : 'references')" class="p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-t-lg">
+                                        <h3 class="font-heading text-lg font-bold text-primary">{{ __('References') }}</h3>
+                                        <svg class="w-6 h-6 transform transition-transform" :class="{'rotate-180': openStep === 'references'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                    <div x-show="openStep === 'references'" x-transition class="p-6 border-t">
+                                        <div class="space-y-4 mb-6">
+                                            @forelse ($references as $reference)
+                                                <div class="p-4 border rounded-md flex justify-between items-center bg-gray-50">
+                                                    <div><p class="font-bold text-gray-800">{{ $reference->name }}</p></div>
+                                                </div>
+                                            @empty
+                                                <p class="text-gray-500 text-center py-4">{{ __("You haven't added any references yet.") }}</p>
+                                            @endforelse
+                                        </div>
+                                        <h4 class="font-bold text-lg mb-4 pt-4 border-t">{{ __('Add New Reference') }}</h4>
+                                        <form method="POST" action="{{ route('cv.storeReference', app()->getLocale()) }}">
+                                            @csrf
+                                            <div class="space-y-4">
+                                                <div><x-input-label for="ref_name" :value="__('Full Name')" /><x-text-input id="ref_name" class="block mt-1 w-full" type="text" name="name" required /></div>
+                                                <div><x-input-label for="ref_job_title" :value="__('Job Title')" /><x-text-input id="ref_job_title" class="block mt-1 w-full" type="text" name="job_title" /></div>
+                                                <div><x-input-label for="ref_company" :value="__('Company')" /><x-text-input id="ref_company" class="block mt-1 w-full" type="text" name="company" /></div>
+                                                <div><x-input-label for="ref_phone" :value="__('Phone')" /><x-text-input id="ref_phone" class="block mt-1 w-full" type="tel" name="phone" /></div>
+                                                <div><x-input-label for="ref_email" :value="__('Email')" /><x-text-input id="ref_email" class="block mt-1 w-full" type="email" name="email" /></div>
+                                                <div class="flex justify-end"><x-primary-button>{{ __('Add Reference') }}</x-primary-button></div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -293,6 +410,30 @@
                                                 <p class="text-sm text-gray-600" x-text="edu.start_date + ' - ' + (edu.end_date || 'Present')"></p>
                                             </div>
                                             <p class="text-sm italic" x-text="edu.institution"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="mt-6">
+                                    <h3 class="text-lg font-heading font-bold border-b-2 border-gray-200 pb-1 mb-2 tracking-widest">{{ __('PROJECTS') }}</h3>
+                                    <template x-for="proj in projects" :key="proj.id">
+                                        <div class="mb-4">
+                                            <div class="flex justify-between items-baseline">
+                                                <h4 class="font-bold text-primary" x-text="proj.name"></h4>
+                                                <a :href="proj.link" target="_blank" class="text-sm text-blue-500 hover:underline" x-show="proj.link">View Project</a>
+                                            </div>
+                                            <p class="text-sm text-gray-700 mt-1" x-text="proj.description"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="mt-6">
+                                    <h3 class="text-lg font-heading font-bold border-b-2 border-gray-200 pb-1 mb-2 tracking-widest">{{ __('CERTIFICATES') }}</h3>
+                                    <template x-for="cert in certificates" :key="cert.id">
+                                        <div class="mb-4">
+                                            <div class="flex justify-between items-baseline">
+                                                <h4 class="font-bold text-primary" x-text="cert.name"></h4>
+                                                <p class="text-sm text-gray-600" x-text="cert.issue_date"></p>
+                                            </div>
+                                            <p class="text-sm italic" x-text="cert.issuing_organization"></p>
                                         </div>
                                     </template>
                                 </div>

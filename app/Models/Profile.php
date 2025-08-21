@@ -11,7 +11,8 @@ class Profile extends Model
     protected $fillable = [
         'user_id', 'first_name', 'father_name', 'last_name', 'date_of_birth',
         'gender', 'nationality_country_id', 'residence_country_id',
-        'phone_numbers', 'emails'
+        'phone_numbers', 'emails',
+        'profile_image_path'
     ];
     protected $casts = [
         'first_name' => 'array',

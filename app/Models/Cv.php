@@ -34,4 +34,16 @@ public function languages()
 {
     return $this->hasMany(Language::class);
 }
+public function projects()
+{
+    return $this->hasMany(Project::class);
+}
+public function certificates()
+{
+    return $this->hasMany(Certificate::class);
+}
+    public function references()
+    {
+        return $this->hasMany(Reference::class);
+    }
 }
