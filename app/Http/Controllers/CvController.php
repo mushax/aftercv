@@ -10,7 +10,7 @@ use App\Http\Requests\StoreEducationRequest;
 use App\Models\Cv;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Country;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class CvController extends Controller
@@ -166,5 +166,42 @@ public function storeReference(Request $request)
 
     return to_route('cv.create', ['locale' => app()->getLocale()])
         ->with('status_reference', 'Reference added successfully!');
+}
+public function downloadPdf()
+{
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+
+    // تأكد من إنشاء الملف الشخصي إذا لم يكن موجودًا
+    $profile = $user->profile()->firstOrCreate();
+
+    // قم بتحميل السيرة الذاتية مع كل علاقاتها
+    $cv = $user->cvs()->with([
+        'workExperiences', 
+        'education', 
+        'skills', 
+        'languages', 
+        'projects', 
+        'certificates', 
+        'references'
+    ])->first();
+
+    if (!$cv) {
+        return redirect()->back()->with('error', 'Please fill out your CV first.');
+    }
+
+    $data = [
+        'user' => $user,
+        'cv' => $cv,
+        'profile' => $profile, // نمرر الملف الشخصي بشكل مباشر وآمن
+    ];
+
+    $pdf = PDF::loadView('cv.templates.default', $data);
+
+    // إنشاء اسم ملف آمن
+    $firstName = $profile->first_name['en'] ?? 'cv';
+    $lastName = $profile->last_name['en'] ?? time();
+    
+    return $pdf->download('cv-'. $firstName .'-'. $lastName .'.pdf');
 }
 }

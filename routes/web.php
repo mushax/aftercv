@@ -57,6 +57,7 @@ Route::group([
         Route::post('/cv/create/certificate', [CvController::class, 'storeCertificate'])->name('cv.storeCertificate');
         Route::post('/cv/create/reference', [CvController::class, 'storeReference'])->name('cv.storeReference');
         Route::patch('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.updatePhoto');
+Route::get('/cv/download', [CvController::class, 'downloadPdf'])->name('cv.download');
 
 
     });
