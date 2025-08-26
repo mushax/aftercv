@@ -46,20 +46,33 @@ Route::group([
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-        Route::get('/cv/create', [CvController::class, 'create'])->name('cv.create');
-        Route::post('/cv/create/personal-info', [CvController::class, 'storePersonalInfo'])->name('cv.storePersonalInfo');
-        Route::post('/cv/create/work-experience', [CvController::class, 'storeWorkExperience'])->name('cv.storeWorkExperience');
-        Route::post('/cv/create/education', [CvController::class, 'storeEducation'])->name('cv.storeEducation');
-        Route::post('/cv/create/skill', [CvController::class, 'storeSkill'])->name('cv.storeSkill');
-        Route::post('/cv/create/language', [CvController::class, 'storeLanguage'])->name('cv.storeLanguage');
-        Route::get('/countries/{country}/cities', [LocationController::class, 'cities'])->name('api.countries.cities');
-        Route::post('/cv/create/project', [CvController::class, 'storeProject'])->name('cv.storeProject');
-        Route::post('/cv/create/certificate', [CvController::class, 'storeCertificate'])->name('cv.storeCertificate');
-        Route::post('/cv/create/reference', [CvController::class, 'storeReference'])->name('cv.storeReference');
         Route::patch('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.updatePhoto');
-Route::get('/cv/download', [CvController::class, 'downloadPdf'])->name('cv.download');
 
 
+        Route::prefix('/cv-builder')->name('cv.builder.')->group(function () {
+            Route::get('/', [CvController::class, 'showPersonal'])->name('start');
+            Route::get('/personal', [CvController::class, 'showPersonal'])->name('personal');
+            Route::get('/experience', [CvController::class, 'showExperience'])->name('experience');
+            Route::get('/education', [CvController::class, 'showEducation'])->name('education');
+            Route::get('/skills', [CvController::class, 'showSkills'])->name('skills');
+            Route::get('/projects', [CvController::class, 'showProjects'])->name('projects');
+            Route::get('/languages', [CvController::class, 'showLanguages'])->name('languages');
+            Route::get('/certificates', [CvController::class, 'showCertificates'])->name('certificates');
+            Route::get('/references', [CvController::class, 'showReferences'])->name('references');
+        });
+
+
+
+        Route::post('/cv/personal-info', [CvController::class, 'storePersonalInfo'])->name('cv.storePersonalInfo');
+        Route::post('/cv/work-experience', [CvController::class, 'storeWorkExperience'])->name('cv.storeWorkExperience');
+        Route::post('/cv/education', [CvController::class, 'storeEducation'])->name('cv.storeEducation');
+        Route::post('/cv/skill', [CvController::class, 'storeSkill'])->name('cv.storeSkill');
+        Route::post('/cv/language', [CvController::class, 'storeLanguage'])->name('cv.storeLanguage');
+        Route::get('/countries/{country}/cities', [LocationController::class, 'cities'])->name('api.countries.cities');
+        Route::post('/cv/project', [CvController::class, 'storeProject'])->name('cv.storeProject');
+        Route::post('/cv/certificate', [CvController::class, 'storeCertificate'])->name('cv.storeCertificate');
+        Route::post('/cv/reference', [CvController::class, 'storeReference'])->name('cv.storeReference');
+        Route::get('/cv/download', [CvController::class, 'downloadPdf'])->name('cv.download');
     });
 
     require __DIR__ . '/auth.php';

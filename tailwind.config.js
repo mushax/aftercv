@@ -11,7 +11,6 @@ export default {
 
     theme: {
         extend: {
-            // --== START: OUR CUSTOMIZATIONS ==--
             colors: {
                 'primary': '#0D253F',   // Navy Blue
                 'secondary': '#01D277', // Emerald Green
@@ -19,10 +18,10 @@ export default {
                 'warning': '#FFC107',   // Amber
             },
             fontFamily: {
+                // Reverted to the original, more stable font stack
                 heading: ['Cairo', ...defaultTheme.fontFamily.sans],
                 body: ['Tajawal', ...defaultTheme.fontFamily.sans],
             },
-            // --== END: OUR CUSTOMIZATIONS ==--
         },
     },
 
