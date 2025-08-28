@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Country;
 use Illuminate\Support\Facades\File; // Important: Add this line
+use EmojiFlag\EmojiFlag;
+
 
 class WorldSeeder extends Seeder
 {
@@ -40,14 +42,30 @@ class WorldSeeder extends Seeder
                 ],
                 'iso_code' => $alpha2, // THE FIX IS HERE
                 'country_code' => $countryData['dialing_code'] ?? '',
-                'flag_emoji' => $countryData['emoji'] ?? '',
+'flag_emoji' => $this->getFlagEmoji($countryData['alpha2']),
+
             ]);
         }
-        
+
         // Manually seed cities for key countries after all countries are created
         $this->seedCities();
     }
-
+private function getFlagEmoji($alpha2)
+{
+    $alpha2 = strtoupper($alpha2);
+    if (strlen($alpha2) !== 2) return '';
+    
+    $regionalIndicatorA = 127462; // Unicode for Regional Indicator A
+    $emoji = '';
+    
+    for ($i = 0; $i < 2; $i++) {
+        $char = $alpha2[$i];
+        $codePoint = $regionalIndicatorA + (ord($char) - ord('A'));
+        $emoji .= mb_chr($codePoint);
+    }
+    
+    return $emoji;
+}
     private function seedCities(): void
     {
         $syria = Country::where('iso_code', 'sy')->first();

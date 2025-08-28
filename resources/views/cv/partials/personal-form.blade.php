@@ -44,7 +44,7 @@
             <div>
                 <x-input-label value="Phone Number" />
                 <div class="flex">
-                    <select class="border-gray-300 rounded-l-md shadow-sm font-emoji">
+                    <select class="border-gray-300 rounded-l-md shadow-sm">
                         @foreach($countries as $country)
                             <option value="{{ $country['id'] }}">
                                 {{ $country['flag_emoji'] }} {{ $country['country_code'] }}
@@ -58,21 +58,24 @@
             <h4 class="font-bold text-sm text-gray-600 pt-2 border-t">Personal Details</h4>
             <div>
                 <x-input-label value="Nationality" />
-                <select class="block mt-1 w-full border-gray-300 rounded-md shadow-sm font-emoji">
-                    @foreach($countries as $country)
-                        <option value="{{ $country['id'] }}">
-                           {{ $country['flag_emoji'] }} {{ $country['name'] }}
-                        </option>
-                    @endforeach
-                </select>
+<select class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">
+    @foreach($countries as $country)
+        <option value="{{ $country['id'] }}">
+            <img src="{{ asset('flags/' . $country['iso_code'] . '.png') }}" 
+                 class="flag-icon" 
+                 alt="{{ $country['name'] }}">
+            {{ $country['name'] }}
+        </option>
+    @endforeach
+</select>
             </div>
              <div>
                 <x-input-label value="Country of Residence" />
-                <select @change="loadCities($event.target.value)" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm font-emoji">
+                <select @change="loadCities($event.target.value)" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">
                     <option value="">-- {{__('Select Country')}} --</option>
                     @foreach($countries as $country)
-                        <option value="{{ $country['id'] }}">
-                            {{ $country['flag_emoji'] }} {{ $country['name'] }}
+                       <span class="fi fi-{{ $country['flag_emoji'] }}"></span>
+            {{ $country['name'] }}
                         </option>
                     @endforeach
                 </select>

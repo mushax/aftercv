@@ -23,16 +23,18 @@ class CvController extends Controller
         ['title' => 'Default CV', 'template' => 'default', 'locale' => app()->getLocale()]
     );
     
-        $countries = Country::all()->map(function ($country) {
-            return [
-                'id' => $country->id,
-                'name' => $country->name[app()->getLocale()] ?? $country->name['en'],
-                'iso_code' => $country->iso_code,
-                'flag_emoji' => $country->flag_emoji, // This was the missing key
-                'country_code' => $country->country_code,
-            ];
-        });
-
+    $countries = Country::all()->map(function ($country) {
+        // استخدم دالة لتحويل ISO code إلى emoji
+        $flagEmoji = $this->isoToEmoji(strtoupper($country->iso_code));
+        
+        return [
+            'id' => $country->id,
+            'name' => $country->name[app()->getLocale()] ?? $country->name['en'],
+            'iso_code' => $country->iso_code,
+            'flag_emoji' => $flagEmoji,
+            'country_code' => $country->country_code,
+        ];
+    });
     return [
         'cv' => $cv,
         'workExperiences' => $cv->workExperiences,
@@ -247,4 +249,11 @@ class CvController extends Controller
 
         return $pdf->download('cv-' . $firstName . '-' . $lastName . '.pdf');
     }
+
+private function isoToEmoji($countryCode)
+{
+    return preg_replace_callback('/[A-Z]/', function ($matches) {
+        return mb_chr(ord($matches[0]) + 127397);
+    }, $countryCode);
+}
 }
